@@ -19,6 +19,8 @@ import {
   GitBranch,
   Tag,
   ArrowLeft,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 export function IncidentDetail({
@@ -31,6 +33,7 @@ export function IncidentDetail({
   onUpdate: (updated: Incident) => void;
 }) {
   const [isInvestigating, setIsInvestigating] = useState(false);
+  const [isResolving, setIsResolving] = useState(false);
   const [liveSteps, setLiveSteps] = useState<InvestigationStep[]>(
     incident.investigationSteps || []
   );
@@ -82,7 +85,6 @@ export function IncidentDetail({
           } else if (data.type === "rootCause") {
             setLiveRootCause(data.data);
           } else if (data.type === "done") {
-            // Refresh the incident from server
             const refreshed = await fetch(`/api/incidents/${incident.id}`);
             if (refreshed.ok) {
               const updatedIncident = await refreshed.json();
@@ -95,6 +97,23 @@ export function IncidentDetail({
       console.error("Investigation error:", err);
     } finally {
       setIsInvestigating(false);
+    }
+  }, [incident.id, onUpdate]);
+
+  const resolveIncident = useCallback(async () => {
+    setIsResolving(true);
+    try {
+      const res = await fetch(`/api/incidents/${incident.id}/resolve`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        onUpdate(updated);
+      }
+    } catch (err) {
+      console.error("Resolve error:", err);
+    } finally {
+      setIsResolving(false);
     }
   }, [incident.id, onUpdate]);
 
@@ -112,9 +131,28 @@ export function IncidentDetail({
         </Button>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <SeverityBadge severity={incident.severity} />
-            <StatusIndicator status={incident.status} />
+          <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <SeverityBadge severity={incident.severity} />
+              <StatusIndicator status={incident.status} />
+            </div>
+
+            {/* Resolve button */}
+            {incident.status !== "resolved" && (
+              <Button
+                onClick={resolveIncident}
+                disabled={isResolving}
+                size="sm"
+                className="font-mono text-[10px] tracking-wide bg-[#30d158]/10 border border-[#30d158]/30 text-[#30d158] hover:bg-[#30d158]/20 h-7 px-3"
+              >
+                {isResolving ? (
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                )}
+                RESOLVE
+              </Button>
+            )}
           </div>
 
           <h2 className="font-mono text-[15px] font-bold text-foreground leading-tight mb-2">
@@ -145,6 +183,15 @@ export function IncidentDetail({
               <GitBranch className="w-3 h-3" />
               {incident.deployments.length} recent deploys
             </span>
+            {incident.resolvedAt && (
+              <span className="inline-flex items-center gap-1 text-[#30d158]">
+                <CheckCircle2 className="w-3 h-3" />
+                Resolved{" "}
+                {formatDistanceToNow(new Date(incident.resolvedAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            )}
           </div>
 
           {/* Tags */}
@@ -165,28 +212,41 @@ export function IncidentDetail({
         </div>
       </div>
 
-      {/* AI Investigation Button */}
-      {incident.status !== "resolved" && !liveRootCause && (
-        <Button
-          onClick={startInvestigation}
-          disabled={isInvestigating}
-          className="w-full font-mono text-[12px] tracking-wide bg-gradient-to-r from-[#64d2ff]/20 to-[#30d158]/20 border border-[#64d2ff]/30 text-[#64d2ff] hover:from-[#64d2ff]/30 hover:to-[#30d158]/30 hover:border-[#64d2ff]/50 transition-all duration-300"
-        >
-          <Brain className="w-4 h-4 mr-2" />
-          {isInvestigating
-            ? "AGENTS INVESTIGATING..."
-            : "LAUNCH AI INVESTIGATION"}
-        </Button>
-      )}
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        {incident.status !== "resolved" && !liveRootCause && (
+          <Button
+            onClick={startInvestigation}
+            disabled={isInvestigating}
+            className="flex-1 font-mono text-[12px] tracking-wide bg-gradient-to-r from-[#64d2ff]/20 to-[#30d158]/20 border border-[#64d2ff]/30 text-[#64d2ff] hover:from-[#64d2ff]/30 hover:to-[#30d158]/30 hover:border-[#64d2ff]/50 transition-all duration-300"
+          >
+            <Brain className="w-4 h-4 mr-2" />
+            {isInvestigating
+              ? "AGENTS INVESTIGATING..."
+              : "LAUNCH AI INVESTIGATION"}
+          </Button>
+        )}
+      </div>
 
-      {/* Tabs for different views */}
-      <Tabs defaultValue={liveSteps.length > 0 || liveRootCause ? "investigation" : "logs"} className="w-full">
+      {/* Tabs */}
+      <Tabs
+        defaultValue={
+          liveSteps.length > 0 || liveRootCause ? "investigation" : "logs"
+        }
+        className="w-full"
+      >
         <TabsList className="w-full bg-[#111827] border border-white/5">
           <TabsTrigger
             value="investigation"
             className="flex-1 font-mono text-[11px] data-[state=active]:bg-[#1a2332] data-[state=active]:text-[#64d2ff]"
           >
             AI Investigation
+            {liveSteps.length > 0 && (
+              <span className="ml-1 text-[9px] text-[#30d158]">
+                ({liveSteps.filter((s) => s.status === "complete").length}/
+                {liveSteps.length})
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger
             value="logs"
