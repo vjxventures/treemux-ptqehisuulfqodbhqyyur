@@ -1,0 +1,7 @@
+# FleetContext — AI-Native Incident Intelligence
+
+**What if PagerDuty were founded in 2026?** FleetContext reimagines incident management with AI at its core. Instead of simply paging an on-call engineer at 3 AM, FleetContext deploys a team of specialized AI agents that autonomously investigate the incident — analyzing error logs, correlating recent deployments, detecting metric anomalies, and synthesizing a root cause analysis with an actionable runbook — all before a human even opens their laptop.
+
+The system uses a multi-agent architecture powered by Claude: a **Log Analyzer** identifies error patterns and anomalies, a **Deployment Correlator** checks if recent code changes are causal, a **Metrics Analyzer** detects statistical anomalies in service health data, and a **Root Cause Synthesizer** combines all findings into a confidence-scored diagnosis with step-by-step remediation instructions. Investigation results stream in real-time via SSE, so engineers see agents working live — like watching a senior SRE think through the problem.
+
+FleetContext accepts alerts from any source (PagerDuty, Datadog, Prometheus Alertmanager) via a universal webhook endpoint, making it a drop-in upgrade for existing infrastructure. This isn't another dashboard — it's the on-call engineer that never sleeps, turning reactive firefighting into proactive resolution and giving every team the incident response capability of a world-class SRE organization.
