@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Button } from "@/components/ui/button";
 import { ChatMessage, TypingIndicator } from "@/components/chat-message";
+import { BenefitsSidebar } from "@/components/benefits-sidebar";
 import {
   Send,
   Sparkles,
@@ -57,6 +58,7 @@ const SUGGESTED_PROMPTS = [
 
 export function ChatInterface() {
   const [input, setInput] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -76,15 +78,25 @@ export function ChatInterface() {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (text?: string) => {
-    const messageText = text ?? input.trim();
-    if (!messageText || isLoading) return;
-    sendMessage({ text: messageText });
-    setInput("");
-    if (inputRef.current) {
-      inputRef.current.style.height = "auto";
+  // Check screen size for default sidebar state
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setSidebarOpen(true);
     }
-  };
+  }, []);
+
+  const handleSubmit = useCallback(
+    (text?: string) => {
+      const messageText = text ?? input.trim();
+      if (!messageText || isLoading) return;
+      sendMessage({ text: messageText });
+      setInput("");
+      if (inputRef.current) {
+        inputRef.current.style.height = "auto";
+      }
+    },
+    [input, isLoading, sendMessage]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -103,47 +115,60 @@ export function ChatInterface() {
   const showWelcome = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Messages area */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 py-6">
-        <div className="max-w-2xl mx-auto space-y-5">
-          {showWelcome && <WelcomeScreen onPromptClick={handleSubmit} />}
+    <div className="flex h-full">
+      {/* Sidebar */}
+      <BenefitsSidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onSendMessage={handleSubmit}
+      />
 
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
+      {/* Main Chat Area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Messages area */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6"
+        >
+          <div className="max-w-2xl mx-auto space-y-5">
+            {showWelcome && <WelcomeScreen onPromptClick={handleSubmit} />}
 
-          {status === "submitted" && <TypingIndicator />}
-        </div>
-      </div>
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
 
-      {/* Input area */}
-      <div className="border-t border-border/50 bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-end gap-2 bg-card border border-border/60 rounded-2xl px-4 py-2 shadow-xs focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 transition-all">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={handleTextareaInput}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask about your benefits..."
-              className="flex-1 resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted-foreground/60 min-h-[24px] max-h-[160px] py-1"
-              rows={1}
-              disabled={isLoading}
-            />
-            <Button
-              size="icon-sm"
-              onClick={() => handleSubmit()}
-              disabled={!input.trim() || isLoading}
-              className="rounded-xl flex-shrink-0 mb-0.5"
-            >
-              <Send className="size-3.5" />
-            </Button>
+            {status === "submitted" && <TypingIndicator />}
           </div>
-          <p className="text-[0.7rem] text-muted-foreground/50 text-center mt-2.5">
-            PulseAid provides general benefits information. Always verify with
-            your HR department or plan administrator for decisions.
-          </p>
+        </div>
+
+        {/* Input area */}
+        <div className="border-t border-border/50 bg-background/80 backdrop-blur-sm px-4 sm:px-6 py-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-end gap-2 bg-card border border-border/60 rounded-2xl px-4 py-2 shadow-xs focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 transition-all">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={handleTextareaInput}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask about your benefits..."
+                className="flex-1 resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted-foreground/60 min-h-[24px] max-h-[160px] py-1"
+                rows={1}
+                disabled={isLoading}
+              />
+              <Button
+                size="icon-sm"
+                onClick={() => handleSubmit()}
+                disabled={!input.trim() || isLoading}
+                className="rounded-xl flex-shrink-0 mb-0.5"
+              >
+                <Send className="size-3.5" />
+              </Button>
+            </div>
+            <p className="text-[0.7rem] text-muted-foreground/50 text-center mt-2.5">
+              PulseAid provides general benefits information. Always verify with
+              your HR department or plan administrator for decisions.
+            </p>
+          </div>
         </div>
       </div>
     </div>
