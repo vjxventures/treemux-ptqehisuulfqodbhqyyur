@@ -13,6 +13,8 @@ import {
   ClipboardList,
   BarChart3,
   Loader2,
+  MapPin,
+  BookOpen,
 } from "lucide-react";
 
 function ToolCallDisplay({
@@ -54,6 +56,16 @@ function ToolCallDisplay({
       icon: <ClipboardList className="size-3.5" />,
       label: "Generating action plan",
       color: "text-warm-600 bg-warm-50 border-warm-200",
+    },
+    findProviders: {
+      icon: <MapPin className="size-3.5" />,
+      label: "Searching providers",
+      color: "text-teal-600 bg-teal-50 border-teal-200",
+    },
+    explainInsuranceTerm: {
+      icon: <BookOpen className="size-3.5" />,
+      label: "Explaining term",
+      color: "text-sage-600 bg-sage-50 border-sage-200",
     },
   };
 

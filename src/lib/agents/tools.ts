@@ -505,3 +505,229 @@ export const generateActionPlan = tool({
     };
   },
 });
+
+export const findProviders = tool({
+  description:
+    "Search for in-network healthcare providers by specialty type. Returns a list of nearby providers with availability and ratings.",
+  inputSchema: z.object({
+    providerType: z
+      .enum(["primaryCare", "urgentCare", "mentalHealth"])
+      .describe("The type of provider to search for"),
+    concern: z
+      .string()
+      .optional()
+      .describe(
+        "Optional: specific concern to match with provider specialties"
+      ),
+  }),
+  execute: async ({ providerType, concern }) => {
+    const providers: Record<string, unknown[]> = {
+      primaryCare: [
+        {
+          name: "Dr. Emily Watson",
+          specialty: "Family Medicine",
+          distance: "0.8 miles",
+          rating: 4.9,
+          nextAvailable: "Next Tuesday",
+          telehealth: true,
+          acceptingNewPatients: true,
+        },
+        {
+          name: "Dr. Raj Patel",
+          specialty: "Internal Medicine",
+          distance: "1.2 miles",
+          rating: 4.7,
+          nextAvailable: "Tomorrow",
+          telehealth: true,
+          acceptingNewPatients: true,
+        },
+        {
+          name: "Dr. Maria Santos",
+          specialty: "Family Medicine",
+          distance: "2.1 miles",
+          rating: 4.8,
+          nextAvailable: "This Friday",
+          telehealth: true,
+          acceptingNewPatients: true,
+        },
+      ],
+      urgentCare: [
+        {
+          name: "MinuteClinic - CVS",
+          distance: "0.5 miles",
+          hours: "8am-8pm daily",
+          estimatedWait: "~15 min",
+          services: "minor injuries, infections, vaccinations",
+        },
+        {
+          name: "CityMD Urgent Care",
+          distance: "1.0 miles",
+          hours: "8am-10pm daily",
+          estimatedWait: "~25 min",
+          services: "X-rays, stitches, sprains, illnesses",
+        },
+        {
+          name: "GoHealth Urgent Care",
+          distance: "1.8 miles",
+          hours: "8am-8pm weekdays, 9am-5pm weekends",
+          estimatedWait: "~20 min",
+          services: "fractures, lab tests, minor procedures",
+        },
+      ],
+      mentalHealth: [
+        {
+          name: "Dr. Lisa Park",
+          specialty: "Clinical Psychology",
+          distance: "1.5 miles",
+          rating: 4.8,
+          nextAvailable: "Next week",
+          telehealth: true,
+          specialties: ["anxiety", "depression", "CBT"],
+          acceptingNewPatients: true,
+        },
+        {
+          name: "Dr. James Rivera",
+          specialty: "Psychiatry",
+          distance: "2.0 miles",
+          rating: 4.6,
+          nextAvailable: "2 weeks",
+          telehealth: true,
+          specialties: ["medication management", "ADHD", "depression"],
+          acceptingNewPatients: true,
+        },
+        {
+          name: "Talkspace (Online)",
+          specialty: "Online Therapy Platform",
+          distance: "Online",
+          rating: 4.4,
+          nextAvailable: "Today",
+          telehealth: true,
+          specialties: [
+            "anxiety",
+            "depression",
+            "stress",
+            "relationships",
+            "work-life balance",
+          ],
+          acceptingNewPatients: true,
+        },
+      ],
+    };
+
+    const results = providers[providerType] ?? [];
+
+    return {
+      providerType,
+      providers: results,
+      totalFound: results.length,
+      note: "All providers listed are in-network. Verify current availability when booking.",
+      tip:
+        providerType === "urgentCare"
+          ? "Urgent care is almost always cheaper than the ER for non-life-threatening issues."
+          : providerType === "mentalHealth"
+            ? "Many therapists offer free 15-minute consultations to see if it's a good fit."
+            : "You can often get same-day or next-day appointments via telehealth.",
+    };
+  },
+});
+
+export const explainInsuranceTerm = tool({
+  description:
+    "Explain a health insurance or medical billing term in simple, plain language. Helps users understand confusing jargon.",
+  inputSchema: z.object({
+    term: z
+      .string()
+      .describe(
+        "The insurance or medical term to explain, e.g. 'deductible', 'coinsurance', 'EOB', 'prior authorization'"
+      ),
+  }),
+  execute: async ({ term }) => {
+    const glossary: Record<
+      string,
+      { definition: string; example: string; tip: string }
+    > = {
+      deductible: {
+        definition:
+          "The amount you pay out of pocket before your insurance starts paying. Think of it as a yearly threshold.",
+        example:
+          "If your deductible is $1,500, you pay the first $1,500 of medical costs yourself. After that, insurance kicks in.",
+        tip: "Preventive care (annual physicals, vaccinations) is ALWAYS free — you don't need to meet your deductible first.",
+      },
+      coinsurance: {
+        definition:
+          "The percentage of costs you share with your insurance AFTER meeting your deductible.",
+        example:
+          "With 20% coinsurance, if a procedure costs $1,000 (after deductible), you pay $200 and insurance pays $800.",
+        tip: "Coinsurance stops when you hit your out-of-pocket maximum. After that, insurance pays 100%.",
+      },
+      copay: {
+        definition:
+          "A fixed amount you pay for a specific service, regardless of the total cost.",
+        example:
+          "A $30 copay for a doctor visit means you pay $30 whether the visit costs $150 or $300.",
+        tip: "Copays usually don't count toward your deductible, but they DO count toward your out-of-pocket maximum.",
+      },
+      "out-of-pocket maximum": {
+        definition:
+          "The most you'll pay in a year. After reaching this limit, insurance covers 100% of covered services.",
+        example:
+          "If your out-of-pocket max is $6,000, once you've paid $6,000 in deductibles, copays, and coinsurance, everything else is free for the rest of the year.",
+        tip: "This is your financial safety net. Even a major surgery can't cost you more than this amount.",
+      },
+      "prior authorization": {
+        definition:
+          "Approval from your insurance company BEFORE getting certain services. Required for some procedures, medications, or specialists.",
+        example:
+          "Before getting an MRI, your doctor's office calls insurance to get pre-approval. Without it, insurance might not pay.",
+        tip: "Always ask your doctor's office to handle prior auth. If denied, you have the right to appeal.",
+      },
+      eob: {
+        definition:
+          "Explanation of Benefits — a statement from insurance showing what they paid and what you owe. It's NOT a bill.",
+        example:
+          "After a doctor visit, you'll get an EOB showing: total charge ($300), insurance paid ($250), you owe ($50).",
+        tip: "Compare your EOB to any bill you receive. If they don't match, call your insurance — billing errors are common.",
+      },
+      "in-network": {
+        definition:
+          "Doctors and facilities that have agreed to charge discounted rates with your insurance company.",
+        example:
+          "An in-network doctor might charge $150 for a visit. The same visit out-of-network could be $400.",
+        tip: "ALWAYS verify a provider is in-network before your appointment. Even a hospital can have out-of-network doctors inside it.",
+      },
+      hsa: {
+        definition:
+          "Health Savings Account — a tax-advantaged savings account for medical expenses. Only available with High Deductible Health Plans (HDHPs).",
+        example:
+          "You contribute pre-tax dollars, the money grows tax-free, and you withdraw tax-free for medical expenses. Triple tax advantage!",
+        tip: "HSA money rolls over forever and is yours even if you change jobs. Many financial experts call it the best retirement account available.",
+      },
+      fsa: {
+        definition:
+          "Flexible Spending Account — pre-tax money set aside for medical expenses. Use it or lose it by year end.",
+        example:
+          "If you put $2,000 in your FSA, that money comes out before taxes, saving you ~$600 in taxes (at 30% bracket).",
+        tip: "Estimate carefully — FSA funds typically expire December 31st. Some plans offer a grace period or $610 rollover.",
+      },
+    };
+
+    const lower = term.toLowerCase().replace(/[^a-z ]/g, "");
+    const match =
+      glossary[lower] ??
+      Object.entries(glossary).find(
+        ([key]) =>
+          lower.includes(key) || key.includes(lower)
+      )?.[1];
+
+    if (match) {
+      return { term, ...match };
+    }
+
+    return {
+      term,
+      definition: `I don't have a pre-built explanation for "${term}", but I can still help explain it based on my knowledge.`,
+      example: "Ask me to clarify and I'll explain in plain language.",
+      tip: "You can always call your plan's member services number on the back of your insurance card for term explanations.",
+    };
+  },
+});
