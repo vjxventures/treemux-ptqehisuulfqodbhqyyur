@@ -1,0 +1,220 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/instrumentserif/v4/jizBRFtNs2ka4fTnCQ6q2DP-dVRFU8E.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/dmsans/v15/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwA.woff2') format('woff2');
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-meridian-warm: #D4A574;
+  --color-meridian-gold: #C9956B;
+  --color-meridian-copper: #B87333;
+  --color-meridian-sand: #E8D5B7;
+  --color-meridian-forest: #2D5016;
+  --color-meridian-ocean: #1B4965;
+  --color-meridian-topo: #8B9D83;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #0C0F0A;
+  --foreground: #E8E4DE;
+  --card: #141914;
+  --card-foreground: #E8E4DE;
+  --popover: #141914;
+  --popover-foreground: #E8E4DE;
+  --primary: #D4A574;
+  --primary-foreground: #0C0F0A;
+  --secondary: #1E241E;
+  --secondary-foreground: #C4BEB6;
+  --muted: #1A1F1A;
+  --muted-foreground: #8B8680;
+  --accent: #1E241E;
+  --accent-foreground: #D4A574;
+  --destructive: #C45D4A;
+  --border: rgba(212, 165, 116, 0.12);
+  --input: rgba(212, 165, 116, 0.15);
+  --ring: #D4A574;
+  --chart-1: #D4A574;
+  --chart-2: #5B8A3C;
+  --chart-3: #3D7A9E;
+  --chart-4: #C9956B;
+  --chart-5: #8B9D83;
+  --sidebar: #0E120E;
+  --sidebar-foreground: #E8E4DE;
+  --sidebar-primary: #D4A574;
+  --sidebar-primary-foreground: #0C0F0A;
+  --sidebar-accent: #1E241E;
+  --sidebar-accent-foreground: #D4A574;
+  --sidebar-border: rgba(212, 165, 116, 0.08);
+  --sidebar-ring: #D4A574;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+}
+
+/* Topographic background pattern */
+.topo-bg {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(212, 165, 116, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(91, 138, 60, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(61, 122, 158, 0.02) 0%, transparent 50%);
+}
+
+.topo-lines {
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 20 100 Q 50 60 100 80 Q 150 100 180 60' fill='none' stroke='rgba(212,165,116,0.04)' stroke-width='1'/%3E%3Cpath d='M 10 140 Q 60 100 110 120 Q 160 140 190 100' fill='none' stroke='rgba(139,157,131,0.04)' stroke-width='1'/%3E%3Cpath d='M 30 60 Q 70 30 120 50 Q 170 70 195 40' fill='none' stroke='rgba(61,122,158,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.35);
+}
+
+/* Prose styling for AI output */
+.prose-meridian {
+  line-height: 1.75;
+}
+.prose-meridian h1, .prose-meridian h2, .prose-meridian h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  color: #D4A574;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.prose-meridian h1 { font-size: 1.5rem; }
+.prose-meridian h2 { font-size: 1.25rem; }
+.prose-meridian h3 { font-size: 1.1rem; }
+.prose-meridian p { margin-bottom: 0.75em; }
+.prose-meridian ul, .prose-meridian ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+.prose-meridian li { margin-bottom: 0.25em; }
+.prose-meridian strong { color: #D4A574; font-weight: 600; }
+.prose-meridian code {
+  background: rgba(212, 165, 116, 0.1);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+.prose-meridian blockquote {
+  border-left: 2px solid rgba(212, 165, 116, 0.3);
+  padding-left: 1em;
+  color: #8B8680;
+  font-style: italic;
+}
+.prose-meridian table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+.prose-meridian th {
+  text-align: left;
+  padding: 0.5em;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+  color: #D4A574;
+  font-weight: 600;
+}
+.prose-meridian td {
+  padding: 0.5em;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.08);
+}
+
+/* Pulse animation for loading */
+@keyframes meridian-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.meridian-pulse {
+  animation: meridian-pulse 2s ease-in-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #D4A574, #C9956B, #B87333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(20, 25, 20, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 165, 116, 0.08);
+}
